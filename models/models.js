@@ -26,25 +26,9 @@ exports.fetchReviewById = (id) => {
       return result.rows[0];
     });
 };
-//////TASK 12
-exports.fetchCommentsByReviewId = (id) => {
-  return db
-    .query(
-      `
-  SELECT * FROM comments
-  WHERE review_id = $1
-  ORDER BY created_at DESC
-  `,
-      [id]
-    )
-    .then((result) => {
-      return result.rows;
-    });
-};
-////////TASK 5
+////////TASK 5 AND 11
 //r.votes r.owner - this is allowed - it's a simple practice in SQL - keeps the query brief
 //r and c are aliases in SQL
-
 // exports.fetchReviews = () => {
 //   return db
 //     .query(
@@ -54,7 +38,8 @@ exports.fetchCommentsByReviewId = (id) => {
 //       return response.rows;
 //     });
 // };
-/////TASK 11
+
+/////TASK 5 AND 11
 exports.fetchReviews = (
   sort_by = "created_at",
   order_by = "DESC",
@@ -116,9 +101,6 @@ exports.fetchCommentsByReviewId = (fetchedComments) => {
       [fetchedComments.review_id]
     )
     .then((response) => {
-      // if (!response.rows.length) {
-      //   return Promise.reject({ status: 404, message: "Not Found" });
-      // } this is not needed as no comments isn't a 404, it's a 200
       return response.rows;
     });
 };
@@ -164,4 +146,55 @@ exports.fetchUsers = () => {
   return db.query(`SELECT * FROM users;`).then(({ rows }) => {
     return rows;
   });
+};
+//////TASK 16
+exports.fetchUserByUsername = (username) => {
+  return db
+    .query(`SELECT * FROM users WHERE username = $1;`, [username])
+    .then((result) => {
+      if (result.rows.length === 0) {
+        return Promise.reject({
+          status: 404,
+          msg: `No user found with username ${id}`,
+        });
+      }
+      return result.rows[0];
+    });
+};
+///////////////TASK 17
+exports.patchCommentsById = (inc_votes, comment_id) => {
+  return db
+    .query(
+      `UPDATE comments SET votes = votes + $1 WHERE comment_id = $2 RETURNING*;`,
+      [inc_votes, comment_id]
+    )
+    .then((response) => {
+      if (response.rows.length === 0) {
+        return Promise.reject({ status: 404, message: "Not Found" });
+      }
+      return response.rows[0];
+    });
+};
+//////////TASK 19. POST /api/reviews
+exports.createReview = (reviewBody) => {
+  const { owner, title, review_body, designer, category, review_img_url } =
+    reviewBody;
+  return db
+    .query(
+      `INSERT INTO reviews (owner, title, review_body, designer, category, review_img_url) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *;`,
+      [owner, title, review_body, designer, category, review_img_url]
+    )
+    .then((response) => {
+      const newReview = response.rows[0];
+      return db
+        .query(
+          `SELECT COUNT(comment_id)::INT AS comment_count FROM comments WHERE review_id = $1;`,
+          [newReview.review_id]
+        ) //new query to get comment count where the review id matches the review we have just created
+        .then((response) => {
+          const commentCount = response.rows[0].comment_count; //getting the comment count
+          newReview.comment_count = commentCount; //assigning it to the new review
+          return newReview;
+        });
+    });
 };

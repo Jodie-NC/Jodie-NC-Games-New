@@ -6,29 +6,28 @@ const data = require("../db/data/test-data");
 const endpointsJSON = require("../endpoints.json");
 
 beforeEach(() => {
-  return seed(data); // seed the db with test data
+  return seed(data);
 });
 
 afterAll(() => {
-  return db.end(); // close the db connection
+  return db.end();
 });
-///////TASK 3.5
+///////TASK 13 GET API
 describe("/api", () => {
-  it("200: GET- responds with a JSON object containing all endpoints", () => {
+  test("200: GET- responds with a JSON object containing all endpoints", () => {
     return request(app)
       .get("/api")
       .expect(200)
       .then((response) => {
         const { endpoints } = response.body;
         expect(endpoints).toEqual(endpointsJSON);
-        //check the form that the JSON object should take
         expect(endpoints).toMatchObject(endpointsJSON);
       });
   });
 });
 ///////TASK 3
 describe("/api/categories", () => {
-  it("200: GET- responds with an array of category objects", () => {
+  test("200: GET- responds with an array of category objects", () => {
     return request(app)
       .get("/api/categories")
       .expect(200)
@@ -44,7 +43,7 @@ describe("/api/categories", () => {
       });
   });
 });
-/////////TASK 4
+/////////TASK 5
 describe("/api/reviews/:review_id", () => {
   test("200: GET- should return a status code of 200", () => {
     return request(app).get("/api/reviews/3").expect(200);
@@ -105,7 +104,7 @@ describe("/api/reviews/:review_id", () => {
       });
   });
 });
-///////TASK 5
+///////TASK 4
 describe("/api/reviews", () => {
   test("200: GET- /api/reviews should return 200 status code", () => {
     return request(app).get("/api/reviews").expect(200);
@@ -152,8 +151,8 @@ describe("GET /api/reviews/:review_id/comments", () => {
     return request(app)
       .get("/api/reviews/3/comments")
       .expect(200)
-      .then((response) => {
-        response.body.forEach((comment) => {
+      .then(({ body }) => {
+        body.comments.forEach((comment) => {
           expect(comment).toMatchObject({
             comment_id: expect.any(Number),
             votes: expect.any(Number),
@@ -168,8 +167,8 @@ describe("GET /api/reviews/:review_id/comments", () => {
     return request(app)
       .get("/api/reviews/1/comments")
       .expect(200)
-      .then((response) => {
-        expect(response.body).toEqual([]);
+      .then(({ body }) => {
+        expect(body.comments).toEqual([]);
       });
   });
 
@@ -182,21 +181,21 @@ describe("GET /api/reviews/:review_id/comments", () => {
       });
   });
 
-  // test("should respond with status 404 if the review ID is non existent ", () => {
-  //   return request(app)
-  //     .get("/api/reviews/9999/comments")
-  //     .expect(404)
-  //     .then(({ body }) => {
-  //       expect(body.message).toBe("Not Found");
-  //     });
-  // });
+  test("should respond with status 404 if the review ID is non existent ", () => {
+    return request(app)
+      .get("/api/reviews/9999/comments")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.message).toBe("Not Found");
+      });
+  });
 
   test("Responds with array of all comment descending", () => {
     return request(app)
       .get("/api/reviews/2/comments")
       .expect(200)
-      .then((result) => {
-        expect(result.body).toBeSortedBy("created_at", {
+      .then(({ body }) => {
+        expect(body.comments).toBeSortedBy("created_at", {
           descending: true,
         });
       });
@@ -345,24 +344,7 @@ describe("PATCH /api/reviews/:review_id", () => {
       });
   });
 });
-/////TASK 9
-describe("DELETE /api/comments", () => {
-  test("204: DELETE - should respond with a status 204 and no content", () => {
-    return request(app)
-      .delete("/api/comments/5")
-      .expect(204)
-      .then((response) => {
-        expect(response.body).toEqual({});
-      });
-  });
-  test("404: DELETE - should respond with a 404 if the comment ID does not exist", () => {
-    return request(app).delete("/api/comments/9999").expect(404);
-  });
-  test("400: DELETE - should respond with a status 400 if the comment ID is invalid", () => {
-    return request(app).delete("/api/comments/not-an-id").expect(400);
-  });
-});
-///////TASK 10
+///////TASK 9
 describe("GET /api/users", () => {
   test("200: GET - should respond with an array of user objects", () => {
     return request(app)
@@ -381,7 +363,7 @@ describe("GET /api/users", () => {
       });
   });
 });
-///////TASK 11
+///////TASK 10
 describe("GET /api/reviews QUERY", () => {
   test("200: GET -responds with an array of reviews with specified category", () => {
     return request(app)
@@ -522,7 +504,7 @@ describe("GET /api/reviews QUERY", () => {
     //Status 200, valid category query, but has no reviews responds with an empty array of reviews, e.g. ?category=children's games.
   });
 });
-/////////TASK 12
+/////////TASK 11 COMMENT COUNT
 describe("200: GET /api/reviews/:review_id", () => {
   test("responds with a review object with comment_count included", () => {
     return request(app)
@@ -557,6 +539,78 @@ describe("200: GET /api/reviews/:review_id", () => {
       .expect(404)
       .then(({ body }) => {
         expect(body.message).toBe("Not Found");
+      });
+  });
+});
+/////TASK 12
+describe("DELETE /api/comments/:comment_id", () => {
+  test("204: DELETE - should respond with a status 204 and no content", () => {
+    return request(app)
+      .delete("/api/comments/5")
+      .expect(204)
+      .then((response) => {
+        expect(response.body).toEqual({});
+      });
+  });
+  test("404: DELETE - should respond with a 404 if the comment ID does not exist", () => {
+    return request(app).delete("/api/comments/9999").expect(404);
+  });
+  test("400: DELETE - should respond with a status 400 if the comment ID is invalid", () => {
+    return request(app).delete("/api/comments/not-an-id").expect(400);
+  });
+});
+/////TASK 17
+describe("GET /api/users/:username", () => {
+  test("200: GET - should respond with a user object for a specific user", () => {
+    const username = "mallionaire";
+    return request(app)
+      .get(`/api/users/${username}`)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.user).toBeInstanceOf(Object);
+        expect(body.user).toMatchObject({
+          username: "mallionaire",
+          name: "haz",
+          avatar_url:
+            "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+        });
+      });
+  });
+});
+//////////TASK 18
+describe("PATCH /api/comments/:comment_id", () => {
+  test("PATCH - should respond with a status 200 and update the votes on a comment given the comments comment_id", () => {
+    const voteObj = { inc_votes: 1 };
+    return request(app)
+      .patch("/api/comments/1")
+      .expect(200)
+      .send(voteObj)
+      .then(({ body }) => {
+        expect(body.votes).toBe(17);
+      });
+  });
+});
+////TASK 19
+describe("POST /api/reviews", () => {
+  test("201: POST - should respond with a 201 and an object with properties of review added", () => {
+    return request(app)
+      .post("/api/reviews")
+      .send({
+        owner: "mallionaire",
+        title: "Terraforming Mars",
+        review_body: "My favourite game!",
+        designer: "Jacob Fryxelius",
+        category: "euro game",
+        review_img_url:
+          "https://images.pexels.com/photos/974314/pexels-photo-974314.jpeg?w=700&h=700",
+      })
+      .expect(201)
+      .then((response) => {
+        expect(response.body.owner).toBe("mallionaire");
+        expect(response.body.title).toBe("Terraforming Mars");
+        expect(response.body.review_body).toBe("My favourite game!");
+        expect(response.body.designer).toBe("Jacob Fryxelius");
+        expect(response.body.category).toBe("euro game");
       });
   });
 });

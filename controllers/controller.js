@@ -7,13 +7,16 @@ const {
   patchVotesById,
   deleteCommentById,
   fetchUsers,
+  fetchUserByUsername,
+  patchCommentsById,
+  createReview,
 } = require("../models/models");
 
 const endpoints = require("../endpoints.json");
+const users = require("../db/data/test-data/users");
 ///////TASK 3.5
 exports.getApi = (req, res) => {
-  res.status(200).send({ endpoints }); //send back the endpoints
-  //destructure to get the key and value
+  res.status(200).send({ endpoints });
 };
 //////TASK 3
 exports.getCategories = (req, res, next) => {
@@ -27,7 +30,7 @@ exports.getCategories = (req, res, next) => {
 };
 //////TASK 4 ///TASK 12
 exports.getReviewById = (req, res, next) => {
-  const { review_id } = req.params; // destructuring id from params
+  const { review_id } = req.params;
   fetchReviewById(review_id)
     .then((review) => {
       res.status(200).send({ review });
@@ -36,38 +39,26 @@ exports.getReviewById = (req, res, next) => {
       next(err);
     });
 };
-/////TASK 12
+////////TASK 5 AND TASK 11
+exports.getReviews = (req, res, next) => {
+  const { sort_by, order_by, category } = req.query;
+  fetchReviews(sort_by, order_by, category)
+    .then((reviews) => {
+      res.status(200).send({ reviews });
+    })
+    .catch((err) => {
+      next(err);
+    });
+}; //catch block is functionally redundant for ticket 5 - needs to be added for 11
+/////TASK 6
 exports.getCommentsByReviewId = (req, res, next) => {
   const { review_id } = req.params;
   const reviewIdPromise = fetchReviewById(review_id);
   const commentsPromise = fetchCommentsByReviewId(review_id);
 
-  Promise.all([commentsPromise, reviewIdPromise])
-    .then(([comments]) => {
+  Promise.all([reviewIdPromise, commentsPromise])
+    .then(([promiseOne, comments]) => {
       res.status(200).send({ comments });
-    })
-    .catch((err) => {
-      next(err);
-    });
-};
-////////TASK 5 AND TASK 11
-exports.getReviews = (req, res, next) => {
-  const { sort_by, order_by, category } = req.query; // destructuring id from params
-  fetchReviews(sort_by, order_by, category)
-    .then((reviews) => {
-      res.status(200).send({ reviews }); //send back the reviews with appropriate key
-    })
-    .catch((err) => {
-      // console.log(err, "ERROR");
-      next(err);
-    });
-}; //catch block is functionally redundant for ticket 5 - needs to be added for 11
-///////TASK 6
-exports.getReviewComments = (req, res, next) => {
-  const review = req.params;
-  fetchCommentsByReviewId(review)
-    .then((comments) => {
-      res.status(200).send(comments);
     })
     .catch((err) => {
       next(err);
@@ -103,7 +94,7 @@ exports.deleteComment = (req, res, next) => {
   const { comment_id } = req.params;
   return deleteCommentById(comment_id)
     .then(() => {
-      res.status(204).send(); //{}
+      res.status(204).send();
     })
     .catch((err) => {
       next(err);
@@ -118,4 +109,36 @@ exports.getUsers = (req, res, next) => {
     .catch((err) => {
       next(err);
     });
+};
+////TASK 16
+exports.getUserByUserName = (req, res, next) => {
+  const { username } = req.params;
+  return fetchUserByUsername(username)
+    .then((user) => {
+      res.status(200).send({ user });
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+};
+////////TASK 17
+exports.patchCommentsById = (req, res, next) => {
+  const { comment_id } = req.params;
+  const { inc_votes } = req.body;
+  patchCommentsById(inc_votes, comment_id)
+    .then((updatedVotes) => {
+      res.status(200).send(updatedVotes);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+};
+//////////TASK 18
+exports.postNewReview = (req, res, next) => {
+  const  reviewBody  = req.body;
+   createReview(reviewBody)
+    .then((createdReview) => {
+  res.status(201).send(createdReview);
+    })
+    .catch(next);
 };

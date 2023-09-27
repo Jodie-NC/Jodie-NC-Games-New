@@ -1,7 +1,5 @@
 const categoriesRouter = require("express").Router();
+const { getCategories } = require("../controllers/controller");
 
-categoriesRouter.get("/", (req, res) => {
-  res.status(200).send("All OK from /api/categories");
-});
-
+categoriesRouter.get("/", getCategories);
 module.exports = categoriesRouter;
