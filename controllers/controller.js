@@ -13,12 +13,11 @@ const {
 } = require("../models/models");
 
 const endpoints = require("../endpoints.json");
-const users = require("../db/data/test-data/users");
-///////TASK 3.5
+////TASK 3.5
 exports.getApi = (req, res) => {
   res.status(200).send({ endpoints });
 };
-//////TASK 3
+////TASK 3
 exports.getCategories = (req, res, next) => {
   return fetchCategories()
     .then((categories) => {
@@ -28,9 +27,10 @@ exports.getCategories = (req, res, next) => {
       next(err);
     });
 };
-//////TASK 4 ///TASK 12
+////TASK 4 ///TASK 12
 exports.getReviewById = (req, res, next) => {
   const { review_id } = req.params;
+  // const review_id = Number(req.params.review_id);
   fetchReviewById(review_id)
     .then((review) => {
       res.status(200).send({ review });
@@ -39,7 +39,7 @@ exports.getReviewById = (req, res, next) => {
       next(err);
     });
 };
-////////TASK 5 AND TASK 11
+////TASK 5 AND TASK 11
 exports.getReviews = (req, res, next) => {
   const { sort_by, order_by, category } = req.query;
   fetchReviews(sort_by, order_by, category)
@@ -50,7 +50,7 @@ exports.getReviews = (req, res, next) => {
       next(err);
     });
 }; //catch block is functionally redundant for ticket 5 - needs to be added for 11
-/////TASK 6
+////TASK 6
 exports.getCommentsByReviewId = (req, res, next) => {
   const { review_id } = req.params;
   const reviewIdPromise = fetchReviewById(review_id);
@@ -64,20 +64,20 @@ exports.getCommentsByReviewId = (req, res, next) => {
       next(err);
     });
 };
-///////TASK 7
+////TASK 7
 exports.postNewComment = (req, res, next) => {
   const { username, body } = req.body;
-  const reviewId = req.params.review_id;
+  const { review_id } = req.params;
   if (!username || !body) {
     return res.status(400).send({ message: "Invalid Request" });
   }
-  createComment(username, body, reviewId)
+  createComment(username, body, review_id)
     .then((createdComment) => {
       res.status(201).send(createdComment);
     })
     .catch(next);
 };
-///////TASK 8
+////TASK 8
 exports.updateVotesById = (req, res, next) => {
   const { review_id } = req.params;
   const { inc_votes } = req.body;
@@ -89,7 +89,7 @@ exports.updateVotesById = (req, res, next) => {
       next(err);
     });
 };
-///////TASK 9
+////TASK 9
 exports.deleteComment = (req, res, next) => {
   const { comment_id } = req.params;
   return deleteCommentById(comment_id)
@@ -100,7 +100,7 @@ exports.deleteComment = (req, res, next) => {
       next(err);
     });
 };
-///////TASK 10
+////TASK 10
 exports.getUsers = (req, res, next) => {
   return fetchUsers()
     .then((users) => {
@@ -121,7 +121,7 @@ exports.getUserByUserName = (req, res, next) => {
       console.log(err);
     });
 };
-////////TASK 17
+////TASK 17
 exports.patchCommentsById = (req, res, next) => {
   const { comment_id } = req.params;
   const { inc_votes } = req.body;
@@ -133,12 +133,12 @@ exports.patchCommentsById = (req, res, next) => {
       console.log(err);
     });
 };
-//////////TASK 18
+////TASK 18
 exports.postNewReview = (req, res, next) => {
-  const  reviewBody  = req.body;
-   createReview(reviewBody)
+  const reviewBody = req.body;
+  createReview(reviewBody)
     .then((createdReview) => {
-  res.status(201).send(createdReview);
+      res.status(201).send(createdReview);
     })
     .catch(next);
 };
