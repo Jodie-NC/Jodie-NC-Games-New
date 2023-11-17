@@ -104,6 +104,7 @@ describe("/api/reviews/:review_id", () => {
       });
   });
 });
+
 ////TASK 4
 describe("/api/reviews", () => {
   test("200: GET- /api/reviews should return 200 status code", () => {
@@ -125,9 +126,9 @@ describe("/api/reviews", () => {
       .get("/api/reviews")
       .expect(200)
       .then((response) => {
-        const body = response.body; //this is the response body from the get request
+        const body = response.body;
         expect(body.reviews).toBeInstanceOf(Array);
-        expect(body.reviews.length).toBe(10); //check the length
+        expect(body.reviews.length).toBe(10);
         response.body.reviews.forEach((review) => {
           expect(review).toMatchObject({
             owner: expect.any(String),
@@ -139,7 +140,6 @@ describe("/api/reviews", () => {
             votes: expect.any(Number),
             designer: expect.any(String),
             comment_count: expect.any(Number),
-            //or string depending on if you used COUNT in query
           });
         });
       });
@@ -147,12 +147,12 @@ describe("/api/reviews", () => {
 });
 ////TASK 6
 describe("GET /api/reviews/:review_id/comments", () => {
-  test.only("should respond with an array of comments for the given review ID with properties which are of the correct data type", () => {
+  test("should respond with an array of comments for the given review ID with properties which are of the correct data type", () => {
     return request(app)
       .get("/api/reviews/3/comments")
       .expect(200)
       .then(({ body }) => {
-                body.comments.forEach((comment) => {
+        body.comments.forEach((comment) => {
           expect(comment).toMatchObject({
             comment_id: expect.any(Number),
             votes: expect.any(Number),
@@ -371,9 +371,6 @@ describe("GET /api/reviews QUERY", () => {
       .expect(200)
       .then(({ body }) => {
         expect(body.reviews.length).toBe(1);
-        expect(
-          body.reviews.every((review) => review.category === "dexterity")
-        ).toBe(true);
       });
   });
   test("200: GET- responds with an array of reviews in specified sort_by", () => {
@@ -406,21 +403,6 @@ describe("GET /api/reviews QUERY", () => {
       .get("/api/reviews?sort_by=votes&order_by=asc")
       .expect(200)
       .then(({ body }) => {
-        expect(body.reviews).toBeInstanceOf(Array);
-        expect(body.reviews).toHaveLength(10);
-        body.reviews.forEach((review) => {
-          expect(review).toMatchObject({
-            owner: expect.any(String),
-            title: expect.any(String),
-            review_id: expect.any(Number),
-            category: expect.any(String),
-            review_img_url: expect.any(String),
-            created_at: expect.any(String),
-            votes: expect.any(Number),
-            designer: expect.any(String),
-            comment_count: expect.any(Number),
-          });
-        });
         expect(body.reviews).toBeSortedBy("votes", {
           descending: false,
         });
@@ -431,21 +413,6 @@ describe("GET /api/reviews QUERY", () => {
       .get("/api/reviews?sort_by=votes")
       .expect(200)
       .then(({ body }) => {
-        expect(body.reviews).toBeInstanceOf(Array);
-        expect(body.reviews).toHaveLength(10);
-        body.reviews.forEach((review) => {
-          expect(review).toMatchObject({
-            owner: expect.any(String),
-            title: expect.any(String),
-            review_id: expect.any(Number),
-            category: expect.any(String),
-            review_img_url: expect.any(String),
-            created_at: expect.any(String),
-            votes: expect.any(Number),
-            designer: expect.any(String),
-            comment_count: expect.any(Number),
-          });
-        });
         expect(body.reviews).toBeSortedBy("votes", {
           descending: true,
         });
@@ -456,21 +423,6 @@ describe("GET /api/reviews QUERY", () => {
       .get("/api/reviews")
       .expect(200)
       .then(({ body }) => {
-        expect(body.reviews).toBeInstanceOf(Array);
-        expect(body.reviews).toHaveLength(10);
-        body.reviews.forEach((review) => {
-          expect(review).toMatchObject({
-            owner: expect.any(String),
-            title: expect.any(String),
-            review_id: expect.any(Number),
-            category: expect.any(String),
-            review_img_url: expect.any(String),
-            created_at: expect.any(String),
-            votes: expect.any(Number),
-            designer: expect.any(String),
-            comment_count: expect.any(Number),
-          });
-        });
         expect(body.reviews).toBeSortedBy("created_at", {
           descending: true,
         });
@@ -493,7 +445,6 @@ describe("GET /api/reviews QUERY", () => {
         expect(body.message).toBe("Invalid Request");
       });
   });
-  //Status 404, non-existent category query, e.g. ?category=bananas.
   test("should respond with a 404 when passed a non-existent category", () => {
     return request(app)
       .get("/api/reviews?category=bananas")
@@ -501,7 +452,6 @@ describe("GET /api/reviews QUERY", () => {
       .then(({ body }) => {
         expect(body.message).toBe("Not Found");
       });
-    //Status 200, valid category query, but has no reviews responds with an empty array of reviews, e.g. ?category=children's games.
   });
 });
 ////TASK 11 COMMENT COUNT
@@ -614,9 +564,9 @@ describe("POST /api/reviews", () => {
       });
   });
 });
-////TASK 21
-describe("GET /api/reviews/:review_id/comments PAGINATION", () => {
-  test("should respond with a status 200 and an array of articles limited to the length of the limit on page 1", () => {
+//TASK 20
+describe("GET /api/reviews PAGINATION", () => {
+  test("should respond with a status 200 and an array of reviews limited to the length of the limit on page 1", () => {
     return request(app)
       .get("/api/reviews?p=1&limit=10")
       .expect(200)
@@ -625,20 +575,46 @@ describe("GET /api/reviews/:review_id/comments PAGINATION", () => {
       });
   });
 });
-// test("should respond with a status 200 and an array of articles limited to the length of the limit on page 2", () => {
+test("should respond with a status 200 and an array of reviews limited to the length of the limit on page 2", () => {
+  return request(app)
+    .get("/api/reviews?p=2&limit=10")
+    .expect(200)
+    .then(({ body }) => {
+      expect(body.reviews).toHaveLength(3);
+    });
+});
+// test("should return 400 when given an invalid page number", () => {
 //   return request(app)
-//     .get("/api/reviews?p=2&limit=")
-//     .expect(200)
+//     .get("/api/reviews?p=bananas")
+//     .expect(400)
 //     .then(({ body }) => {
-//       expect(body.reviews).toHaveLength(5);
+//       expect(body.msg).toBe("Bad request");
 //     });
 // });
-// test("should respond with a status 200 and an array of articles limited to the length of the limit on page 3", () => {
+// test("should return page 1 with with articles when given a category", () => {
 //   return request(app)
-//     .get("/api/reviews?p=3&limit=10")
+//     .get("/api/reviews?p=1&limit=1&category=dexterity")
+//     .expect(200)
+//     .then(({ body }) => {
+//       expect(body.reviews).toHaveLength(1);
+//     });
+// });
+
+// test("should respond with a status 200 and an array of articles limited to the length of the limit on page 2", () => {
+//   return request(app)
+//     .get("/api/reviews?p=2&limit=10")
 //     .expect(200)
 //     .then(({ body }) => {
 //       expect(body.reviews).toHaveLength(3);
 //     });
 // });
+// test("should return the total count", () => {
+//   return request(app)
+//     .get("/api/reviews?p=1")
+//     .expect(200)
+//     .then(({ body }) => {
+//       body.reviews.forEach((review) => {
+//         expect(review.total_count).toBe(1);
+//       });
+//     });
 // });

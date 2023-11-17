@@ -40,15 +40,16 @@ exports.fetchReviewById = (id) => {
 // };
 
 /////TASK 5 AND 11
+
 exports.fetchReviews = (
   sort_by = "created_at",
   order_by = "DESC",
   category,
   limit = 10,
-  pageNum = 1
+  p = 1
 ) => {
   let offset = 0;
-  if (pageNum > 1) {
+  if (p > 1) {
     offset = limit * p - limit;
   }
 
@@ -69,7 +70,7 @@ exports.fetchReviews = (
         (sort_by && !validSortBy.includes(sort_by)) ||
         (order_by && !validOrderBy.includes(order_by)) ||
         !/[0-9]+/.test(limit) ||
-        !/[0-9]+/.test(pageNum)
+        !/[0-9]+/.test(p)
       ) {
         return Promise.reject({
           status: 400,
@@ -98,6 +99,18 @@ exports.fetchReviews = (
       return rows;
     });
 };
+////TASK 6
+exports.fetchCommentsByReviewId = (review_id) => {
+  return db
+    .query(
+      `SELECT * FROM comments WHERE review_id = $1 ORDER BY created_at DESC;`,
+      [review_id]
+    )
+    .then(({ rows }) => {
+      return rows;
+    });
+};
+
 ////TASK 6
 exports.fetchCommentsByReviewId = (review_id) => {
   return db
@@ -195,10 +208,10 @@ exports.createReview = (reviewBody) => {
         .query(
           `SELECT COUNT(comment_id)::INT AS comment_count FROM comments WHERE review_id = $1;`,
           [newReview.review_id]
-        ) //new query to get comment count where the review id matches the review we have just created
+        )
         .then(({ rows }) => {
-          const commentCount = rows[0].comment_count; //getting the comment count
-          newReview.comment_count = commentCount; //assigning it to the new review
+          const commentCount = rows[0].comment_count;
+          newReview.comment_count = commentCount;
           return newReview;
         });
     });

@@ -13,6 +13,5 @@ reviewsRouter.post("/", postNewReview);
 reviewsRouter.get("/:review_id", getReviewById);
 reviewsRouter.get("/:review_id/comments", getCommentsByReviewId);
 reviewsRouter.post("/:review_id/comments", postNewComment);
-
 reviewsRouter.patch("/:review_id", updateVotesById);
 module.exports = reviewsRouter;
