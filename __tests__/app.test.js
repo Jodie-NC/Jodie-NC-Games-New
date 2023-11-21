@@ -104,7 +104,6 @@ describe("/api/reviews/:review_id", () => {
       });
   });
 });
-
 ////TASK 4
 describe("/api/reviews", () => {
   test("200: GET- /api/reviews should return 200 status code", () => {
@@ -114,8 +113,8 @@ describe("/api/reviews", () => {
     return request(app)
       .get("/api/reviews")
       .expect(200)
-      .then((response) => {
-        expect(response.body.reviews).toBeSorted({
+      .then(({ body }) => {
+        expect(body.reviews).toBeSorted({
           key: "created_at",
           descending: true,
         });
@@ -125,11 +124,10 @@ describe("/api/reviews", () => {
     return request(app)
       .get("/api/reviews")
       .expect(200)
-      .then((response) => {
-        const body = response.body;
+      .then(({ body }) => {
         expect(body.reviews).toBeInstanceOf(Array);
         expect(body.reviews.length).toBe(10);
-        response.body.reviews.forEach((review) => {
+        body.reviews.forEach((review) => {
           expect(review).toMatchObject({
             owner: expect.any(String),
             title: expect.any(String),
@@ -283,18 +281,18 @@ describe("PATCH /api/reviews/:review_id", () => {
       .patch("/api/reviews/1")
       .expect(200)
       .send({ inc_votes: 100 })
-      .then((result) => {
-        expect(result.body.review_id).toBe(1);
-        expect(result.body.title).toBe("Agricola");
-        expect(result.body.designer).toBe("Uwe Rosenberg");
-        expect(result.body.owner).toBe("mallionaire");
-        expect(result.body.review_img_url).toBe(
+      .then(({body}) => {
+        expect(body.review_id).toBe(1);
+        expect(body.title).toBe("Agricola");
+        expect(body.designer).toBe("Uwe Rosenberg");
+        expect(body.owner).toBe("mallionaire");
+        expect(body.review_img_url).toBe(
           "https://images.pexels.com/photos/974314/pexels-photo-974314.jpeg?w=700&h=700"
         );
-        expect(result.body.review_body).toBe("Farmyard fun!");
-        expect(result.body.category).toBe("euro game");
-        expect(result.body.created_at).toBe("2021-01-18T10:00:20.514Z");
-        expect(result.body.votes).toBe(101);
+        expect(body.review_body).toBe("Farmyard fun!");
+        expect(body.category).toBe("euro game");
+        expect(body.created_at).toBe("2021-01-18T10:00:20.514Z");
+        expect(body.votes).toBe(101);
       });
   });
   test("200: PATCH should return status code 200 and update article votes to specified amount decremented", () => {
@@ -498,8 +496,8 @@ describe("DELETE /api/comments/:comment_id", () => {
     return request(app)
       .delete("/api/comments/5")
       .expect(204)
-      .then((response) => {
-        expect(response.body).toEqual({});
+      .then(({body}) => {
+        expect(body).toEqual({});
       });
   });
   test("404: DELETE - should respond with a 404 if the comment ID does not exist", () => {
@@ -555,12 +553,12 @@ describe("POST /api/reviews", () => {
           "https://images.pexels.com/photos/974314/pexels-photo-974314.jpeg?w=700&h=700",
       })
       .expect(201)
-      .then((response) => {
-        expect(response.body.owner).toBe("mallionaire");
-        expect(response.body.title).toBe("Terraforming Mars");
-        expect(response.body.review_body).toBe("My favourite game!");
-        expect(response.body.designer).toBe("Jacob Fryxelius");
-        expect(response.body.category).toBe("euro game");
+      .then(({body}) => {
+        expect(body.owner).toBe("mallionaire");
+        expect(body.title).toBe("Terraforming Mars");
+        expect(body.review_body).toBe("My favourite game!");
+        expect(body.designer).toBe("Jacob Fryxelius");
+        expect(body.category).toBe("euro game");
       });
   });
 });
@@ -583,38 +581,28 @@ test("should respond with a status 200 and an array of reviews limited to the le
       expect(body.reviews).toHaveLength(3);
     });
 });
-// test("should return 400 when given an invalid page number", () => {
-//   return request(app)
-//     .get("/api/reviews?p=bananas")
-//     .expect(400)
-//     .then(({ body }) => {
-//       expect(body.msg).toBe("Bad request");
-//     });
-// });
-// test("should return page 1 with with articles when given a category", () => {
-//   return request(app)
-//     .get("/api/reviews?p=1&limit=1&category=dexterity")
-//     .expect(200)
-//     .then(({ body }) => {
-//       expect(body.reviews).toHaveLength(1);
-//     });
-// });
+test("should return 400 when given an invalid page number", () => {
+  return request(app)
+    .get("/api/reviews?p=bananas")
+    .expect(400)
+    .then(({ body }) => {
+      expect(body.message).toBe("Invalid Request");
+    });
+});
+test("should return page 1 with with articles when given a category", () => {
+  return request(app)
+    .get("/api/reviews?p=1&limit=1&category=dexterity")
+    .expect(200)
+    .then(({ body }) => {
+      expect(body.reviews).toHaveLength(1);
+    });
+});
+test("should respond with a status 200 and an array of articles limited to the length of the limit on page 2", () => {
+  return request(app)
+    .get("/api/reviews?p=2&limit=10")
+    .expect(200)
+    .then(({ body }) => {
+      expect(body.reviews).toHaveLength(3);
+    });
+});
 
-// test("should respond with a status 200 and an array of articles limited to the length of the limit on page 2", () => {
-//   return request(app)
-//     .get("/api/reviews?p=2&limit=10")
-//     .expect(200)
-//     .then(({ body }) => {
-//       expect(body.reviews).toHaveLength(3);
-//     });
-// });
-// test("should return the total count", () => {
-//   return request(app)
-//     .get("/api/reviews?p=1")
-//     .expect(200)
-//     .then(({ body }) => {
-//       body.reviews.forEach((review) => {
-//         expect(review.total_count).toBe(1);
-//       });
-//     });
-// });

@@ -40,7 +40,6 @@ exports.fetchReviewById = (id) => {
 // };
 
 /////TASK 5 AND 11
-
 exports.fetchReviews = (
   sort_by = "created_at",
   order_by = "DESC",
@@ -52,7 +51,6 @@ exports.fetchReviews = (
   if (p > 1) {
     offset = limit * p - limit;
   }
-
   return db
     .query(`SELECT slug FROM categories`)
     .then((result) => {
@@ -77,7 +75,6 @@ exports.fetchReviews = (
           msg: "Invalid Request",
         });
       }
-
       if (category && !validCategory.includes(category)) {
         return Promise.reject({
           status: 404,
@@ -110,7 +107,6 @@ exports.fetchCommentsByReviewId = (review_id) => {
       return rows;
     });
 };
-
 ////TASK 6
 exports.fetchCommentsByReviewId = (review_id) => {
   return db
