@@ -6,6 +6,7 @@ const {
   handlePsqlErrors,
   handle400Errors,
   handle404Errors,
+  handle500Error,
 } = require("./controllers/error-controller");
 
 const apiRouter = require("./routers/api-router");
@@ -19,6 +20,7 @@ app.use(handleCustomErrors);
 app.use(handlePsqlErrors);
 app.use(handle400Errors);
 app.use(handle404Errors);
+app.use(handle500Error);
 
 // app.all("/*", (err) => {
 //   console.log(err, "ERRRRRORRRR");

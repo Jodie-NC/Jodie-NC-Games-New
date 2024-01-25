@@ -10,6 +10,8 @@ const {
   fetchUserByUsername,
   patchCommentsById,
   createReview,
+  createCategory,
+  deleteReviewById,
 } = require("../models/models");
 
 const endpoints = require("../endpoints.json");
@@ -30,7 +32,6 @@ exports.getCategories = (req, res, next) => {
 ////TASK 4 ///TASK 12
 exports.getReviewById = (req, res, next) => {
   const { review_id } = req.params;
-  // const review_id = Number(req.params.review_id);
   fetchReviewById(review_id)
     .then((review) => {
       res.status(200).send({ review });
@@ -50,7 +51,7 @@ exports.getReviews = (req, res, next) => {
     .catch((err) => {
       next(err);
     });
-}; //catch block is functionally redundant for ticket 5 - needs to be added for 11
+};
 ////TASK 6
 exports.getCommentsByReviewId = (req, res, next) => {
   const { review_id } = req.params;
@@ -81,7 +82,7 @@ exports.postNewComment = (req, res, next) => {
 ////TASK 8
 exports.updateVotesById = (req, res, next) => {
   const { review_id } = req.params;
-  const { inc_votes } = req.body;
+  const { inc_votes } = req.body; //if they don't destructure then you have to access this using dot notation through the object in models
   patchVotesById(inc_votes, review_id)
     .then((updatedReview) => {
       res.status(200).send(updatedReview);
@@ -142,4 +143,24 @@ exports.postNewReview = (req, res, next) => {
       res.status(201).send(createdReview);
     })
     .catch(next);
+};
+////TASK 22
+exports.postCategory = (req, res, next) => {
+  const newCategory = req.body;
+  createCategory(newCategory)
+    .then((createdCategory) => {
+      res.status(201).send(createdCategory);
+    })
+    .catch(next);
+};
+////TASK 23
+exports.deleteReview = (req, res, next) => {
+  const { review_id } = req.params;
+  return deleteReviewById(review_id)
+    .then(() => {
+      res.status(204).send();
+    })
+    .catch((err) => {
+      next(err);
+    });
 };

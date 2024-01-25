@@ -19,10 +19,8 @@ describe("/api", () => {
       .get("/api")
       .expect(200)
       .then((response) => {
-        // console.log(response.body);
         const { endpoints } = response.body;
         expect(endpoints).toEqual(endpointsJSON);
-        expect(endpoints).toMatchObject(endpointsJSON);
       });
   });
 });
@@ -114,7 +112,7 @@ describe("/api/reviews", () => {
       .get("/api/reviews")
       .expect(200)
       .then(({ body }) => {
-        expect(body.reviews).toBeSorted({
+        expect(body.reviews.rows).toBeSorted({
           key: "created_at",
           descending: true,
         });
@@ -125,9 +123,9 @@ describe("/api/reviews", () => {
       .get("/api/reviews")
       .expect(200)
       .then(({ body }) => {
-        expect(body.reviews).toBeInstanceOf(Array);
-        expect(body.reviews.length).toBe(10);
-        body.reviews.forEach((review) => {
+        expect(body.reviews.rows).toBeInstanceOf(Array);
+        expect(body.reviews.rows.length).toBe(10);
+        body.reviews.rows.forEach((review) => {
           expect(review).toMatchObject({
             owner: expect.any(String),
             title: expect.any(String),
@@ -281,7 +279,7 @@ describe("PATCH /api/reviews/:review_id", () => {
       .patch("/api/reviews/1")
       .expect(200)
       .send({ inc_votes: 100 })
-      .then(({body}) => {
+      .then(({ body }) => {
         expect(body.review_id).toBe(1);
         expect(body.title).toBe("Agricola");
         expect(body.designer).toBe("Uwe Rosenberg");
@@ -368,7 +366,7 @@ describe("GET /api/reviews QUERY", () => {
       .get("/api/reviews?category=dexterity")
       .expect(200)
       .then(({ body }) => {
-        expect(body.reviews.length).toBe(1);
+        expect(body.reviews.rows.length).toBe(1);
       });
   });
   test("200: GET- responds with an array of reviews in specified sort_by", () => {
@@ -376,9 +374,9 @@ describe("GET /api/reviews QUERY", () => {
       .get("/api/reviews?sort_by=votes")
       .expect(200)
       .then(({ body }) => {
-        expect(body.reviews).toBeInstanceOf(Array);
-        expect(body.reviews).toHaveLength(10);
-        body.reviews.forEach((review) => {
+        expect(body.reviews.rows).toBeInstanceOf(Array);
+        expect(body.reviews.rows).toHaveLength(10);
+        body.reviews.rows.forEach((review) => {
           expect(review).toMatchObject({
             owner: expect.any(String),
             title: expect.any(String),
@@ -391,7 +389,7 @@ describe("GET /api/reviews QUERY", () => {
             comment_count: expect.any(Number),
           });
         });
-        expect(body.reviews).toBeSortedBy("votes", {
+        expect(body.reviews.rows).toBeSortedBy("votes", {
           descending: true,
         });
       });
@@ -401,7 +399,7 @@ describe("GET /api/reviews QUERY", () => {
       .get("/api/reviews?sort_by=votes&order_by=asc")
       .expect(200)
       .then(({ body }) => {
-        expect(body.reviews).toBeSortedBy("votes", {
+        expect(body.reviews.rows).toBeSortedBy("votes", {
           descending: false,
         });
       });
@@ -411,7 +409,7 @@ describe("GET /api/reviews QUERY", () => {
       .get("/api/reviews?sort_by=votes")
       .expect(200)
       .then(({ body }) => {
-        expect(body.reviews).toBeSortedBy("votes", {
+        expect(body.reviews.rows).toBeSortedBy("votes", {
           descending: true,
         });
       });
@@ -421,7 +419,7 @@ describe("GET /api/reviews QUERY", () => {
       .get("/api/reviews")
       .expect(200)
       .then(({ body }) => {
-        expect(body.reviews).toBeSortedBy("created_at", {
+        expect(body.reviews.rows).toBeSortedBy("created_at", {
           descending: true,
         });
       });
@@ -496,7 +494,7 @@ describe("DELETE /api/comments/:comment_id", () => {
     return request(app)
       .delete("/api/comments/5")
       .expect(204)
-      .then(({body}) => {
+      .then(({ body }) => {
         expect(body).toEqual({});
       });
   });
@@ -553,7 +551,7 @@ describe("POST /api/reviews", () => {
           "https://images.pexels.com/photos/974314/pexels-photo-974314.jpeg?w=700&h=700",
       })
       .expect(201)
-      .then(({body}) => {
+      .then(({ body }) => {
         expect(body.owner).toBe("mallionaire");
         expect(body.title).toBe("Terraforming Mars");
         expect(body.review_body).toBe("My favourite game!");
@@ -569,7 +567,7 @@ describe("GET /api/reviews PAGINATION", () => {
       .get("/api/reviews?p=1&limit=10")
       .expect(200)
       .then(({ body }) => {
-        expect(body.reviews).toHaveLength(10);
+        expect(body.reviews.rows).toHaveLength(10);
       });
   });
 });
@@ -578,7 +576,7 @@ test("should respond with a status 200 and an array of reviews limited to the le
     .get("/api/reviews?p=2&limit=10")
     .expect(200)
     .then(({ body }) => {
-      expect(body.reviews).toHaveLength(3);
+      expect(body.reviews.rows).toHaveLength(3);
     });
 });
 test("should return 400 when given an invalid page number", () => {
@@ -594,7 +592,7 @@ test("should return page 1 with with articles when given a category", () => {
     .get("/api/reviews?p=1&limit=1&category=dexterity")
     .expect(200)
     .then(({ body }) => {
-      expect(body.reviews).toHaveLength(1);
+      expect(body.reviews.rows).toHaveLength(1);
     });
 });
 test("should respond with a status 200 and an array of articles limited to the length of the limit on page 2", () => {
@@ -602,7 +600,41 @@ test("should respond with a status 200 and an array of articles limited to the l
     .get("/api/reviews?p=2&limit=10")
     .expect(200)
     .then(({ body }) => {
-      expect(body.reviews).toHaveLength(3);
+      expect(body.reviews.rows).toHaveLength(3);
     });
 });
-
+test("should have property total_count ", () => {
+  return request(app)
+    .get("/api/reviews?p=1&limit=1")
+    .expect(200)
+    .then(({ body }) => {
+      expect(body.reviews.total_count).toBe(0);
+    });
+});
+///TASK 22
+describe("POST /api/categories", () => {
+  test("201: POST - should respond with a 201 and a category object with the newly added topic", () => {
+    return request(app)
+      .post("/api/categories")
+      .send({
+        slug: "something totally different",
+        description: "hiyaaaaaaa",
+      })
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.slug).toBe("something totally different");
+        expect(body.description).toBe("hiyaaaaaaa");
+      });
+  });
+});
+//TASK 23 DELETE
+describe("DELETE /api/reviews/:review_id", () => {
+  test("204: DELETE - should respond with a status 204 and no content", () => {
+    return request(app)
+      .delete("/api/reviews/1")
+      .expect(204)
+      .then(({ body }) => {
+        expect(body).toEqual({});
+      });
+  });
+});

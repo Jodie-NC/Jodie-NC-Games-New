@@ -6,8 +6,7 @@ exports.fetchCategories = () => {
     return rows;
   });
 };
-////TASK 4 - SELECT * FROM reviews WHERE review_id = $1
-////TASK 12 - added ORDER BY comments.created_at DESC to SQL query
+////TASK 4 & TASK 12
 exports.fetchReviewById = (id) => {
   return db
     .query(
@@ -26,19 +25,6 @@ exports.fetchReviewById = (id) => {
       return rows[0];
     });
 };
-////TASK 5 AND 11
-//r.votes r.owner - this is allowed - it's a simple practice in SQL - keeps the query brief
-//r and c are aliases in SQL
-// exports.fetchReviews = () => {
-//   return db
-//     .query(
-//       `SELECT owner, title, reviews.review_id, category, review_img_url, reviews.created_at, reviews.votes, designer, COUNT(comments.review_id)::INT as comment_count FROM reviews LEFT JOIN comments ON reviews.review_id = comments.review_id GROUP BY reviews.review_id ORDER BY reviews.created_at DESC;`
-//     )
-//     .then((response) => {
-//       return response.rows;
-//     });
-// };
-
 /////TASK 5 AND 11
 exports.fetchReviews = (
   sort_by = "created_at",
@@ -52,6 +38,7 @@ exports.fetchReviews = (
     offset = limit * p - limit;
   }
   return db
+
     .query(`SELECT slug FROM categories`)
     .then((result) => {
       const categoryArr = result.rows;
@@ -63,7 +50,6 @@ exports.fetchReviews = (
     .then((validCategory) => {
       const validSortBy = ["created_at", "votes", "comment_count"];
       const validOrderBy = ["asc", "desc", "ASC", "DESC"];
-
       if (
         (sort_by && !validSortBy.includes(sort_by)) ||
         (order_by && !validOrderBy.includes(order_by)) ||
@@ -83,28 +69,25 @@ exports.fetchReviews = (
       }
       let queryString =
         "SELECT reviews.*, COUNT(comments.review_id)::INT AS comment_count FROM reviews LEFT JOIN comments ON reviews.review_id = comments.review_id ";
+
       const selectedCategory = category;
       const queryInputs = [];
       if (selectedCategory) {
         queryInputs.push(selectedCategory);
         queryString += `WHERE reviews.category = $1`;
       }
+
       queryString += ` GROUP BY reviews.review_id ORDER BY reviews.${sort_by} ${order_by} LIMIT ${limit} OFFSET ${offset};`;
       return db.query(queryString, queryInputs);
     })
     .then(({ rows }) => {
-      return rows;
-    });
-};
-////TASK 6
-exports.fetchCommentsByReviewId = (review_id) => {
-  return db
-    .query(
-      `SELECT * FROM comments WHERE review_id = $1 ORDER BY created_at DESC;`,
-      [review_id]
-    )
-    .then(({ rows }) => {
-      return rows;
+      const totalQuery = `SELECT COUNT(*) AS total_count 
+        FROM reviews
+        WHERE category = $1`;
+      return db.query(totalQuery, [category]).then((total) => {
+        const totalCount = parseInt(total.rows[0].total_count);
+        return { rows: rows, total_count: totalCount };
+      });
     });
 };
 ////TASK 6
@@ -210,5 +193,30 @@ exports.createReview = (reviewBody) => {
           newReview.comment_count = commentCount;
           return newReview;
         });
+    });
+};
+/////TASK 22
+exports.createCategory = (newCategory) => {
+  const { slug, description } = newCategory;
+  return db
+    .query(
+      `INSERT INTO categories (slug, description)
+      VALUES ($1, $2)
+      RETURNING *;`,
+      [slug, description]
+    )
+    .then((response) => {
+      return response.rows[0];
+    });
+};
+
+////TASK 23
+exports.deleteReviewById = (review_id) => {
+  return db
+    .query(`DELETE FROM reviews WHERE review_id = $1;`, [review_id])
+    .then((response) => {
+      if (response.rowCount === 0) {
+        return Promise.reject({ status: 404, message: "Not Found" });
+      }
     });
 };
