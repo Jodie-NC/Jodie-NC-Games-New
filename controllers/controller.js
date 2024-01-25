@@ -82,7 +82,7 @@ exports.postNewComment = (req, res, next) => {
 ////TASK 8
 exports.updateVotesById = (req, res, next) => {
   const { review_id } = req.params;
-  const { inc_votes } = req.body; //if they don't destructure then you have to access this using dot notation through the object in models
+  const { inc_votes } = req.body; 
   patchVotesById(inc_votes, review_id)
     .then((updatedReview) => {
       res.status(200).send(updatedReview);
