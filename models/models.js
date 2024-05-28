@@ -1,12 +1,12 @@
 const db = require("../db/connection");
 
-////TASK 3
+
 exports.fetchCategories = () => {
   return db.query(`SELECT * FROM categories`).then(({ rows }) => {
     return rows;
   });
 };
-////TASK 4 & TASK 12
+
 exports.fetchReviewById = (id) => {
   return db
     .query(
@@ -25,7 +25,7 @@ exports.fetchReviewById = (id) => {
       return rows[0];
     });
 };
-/////TASK 5 AND 11
+
 exports.fetchReviews = (
   sort_by = "created_at",
   order_by = "DESC",
@@ -90,7 +90,7 @@ exports.fetchReviews = (
       });
     });
 };
-////TASK 6
+
 exports.fetchCommentsByReviewId = (review_id) => {
   return db
     .query(
@@ -101,7 +101,7 @@ exports.fetchCommentsByReviewId = (review_id) => {
       return rows;
     });
 };
-////TASK 7
+
 exports.createComment = (username, body, reviewId) => {
   return db
     .query(
@@ -114,7 +114,7 @@ exports.createComment = (username, body, reviewId) => {
       return rows[0];
     });
 };
-////TASK 8
+
 exports.patchVotesById = (inc_votes, reviewId) => {
   return db
     .query(
@@ -128,7 +128,7 @@ exports.patchVotesById = (inc_votes, reviewId) => {
       return rows[0];
     });
 };
-////TASK 9
+
 exports.deleteCommentById = (comment_id) => {
   return db
     .query(`DELETE FROM comments WHERE comment_id = $1;`, [comment_id])
@@ -138,13 +138,13 @@ exports.deleteCommentById = (comment_id) => {
       }
     });
 };
-////TASK 10
+
 exports.fetchUsers = () => {
   return db.query(`SELECT * FROM users;`).then(({ rows }) => {
     return rows;
   });
 };
-////TASK 16
+
 exports.fetchUserByUsername = (username) => {
   return db
     .query(`SELECT * FROM users WHERE username = $1;`, [username])
@@ -158,7 +158,7 @@ exports.fetchUserByUsername = (username) => {
       return rows[0];
     });
 };
-////TASK 17
+
 exports.patchCommentsById = (inc_votes, comment_id) => {
   return db
     .query(
@@ -172,7 +172,7 @@ exports.patchCommentsById = (inc_votes, comment_id) => {
       return response.rows[0];
     });
 };
-////TASK 19. POST /api/reviews
+
 exports.createReview = (reviewBody) => {
   const { owner, title, review_body, designer, category, review_img_url } =
     reviewBody;
@@ -195,7 +195,7 @@ exports.createReview = (reviewBody) => {
         });
     });
 };
-/////TASK 22
+
 exports.createCategory = (newCategory) => {
   const { slug, description } = newCategory;
   return db
@@ -210,7 +210,7 @@ exports.createCategory = (newCategory) => {
     });
 };
 
-////TASK 23
+
 exports.deleteReviewById = (review_id) => {
   return db
     .query(`DELETE FROM reviews WHERE review_id = $1;`, [review_id])

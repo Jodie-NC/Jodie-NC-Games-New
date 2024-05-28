@@ -15,11 +15,11 @@ const {
 } = require("../models/models");
 
 const endpoints = require("../endpoints.json");
-////TASK 3.5
+
 exports.getApi = (req, res) => {
   res.status(200).send({ endpoints });
 };
-////TASK 3
+
 exports.getCategories = (req, res, next) => {
   return fetchCategories()
     .then((categories) => {
@@ -29,7 +29,7 @@ exports.getCategories = (req, res, next) => {
       next(err);
     });
 };
-////TASK 4 ///TASK 12
+
 exports.getReviewById = (req, res, next) => {
   const { review_id } = req.params;
   fetchReviewById(review_id)
@@ -40,7 +40,7 @@ exports.getReviewById = (req, res, next) => {
       next(err);
     });
 };
-////TASK 5 AND TASK 11
+
 exports.getReviews = (req, res, next) => {
   const { sort_by, order_by, category, limit } = req.query;
   const pageNum = req.query.p;
@@ -52,7 +52,7 @@ exports.getReviews = (req, res, next) => {
       next(err);
     });
 };
-////TASK 6
+
 exports.getCommentsByReviewId = (req, res, next) => {
   const { review_id } = req.params;
   const reviewIdPromise = fetchReviewById(review_id);
@@ -66,7 +66,7 @@ exports.getCommentsByReviewId = (req, res, next) => {
       next(err);
     });
 };
-////TASK 7
+
 exports.postNewComment = (req, res, next) => {
   const { username, body } = req.body;
   const { review_id } = req.params;
@@ -79,7 +79,7 @@ exports.postNewComment = (req, res, next) => {
     })
     .catch(next);
 };
-////TASK 8
+
 exports.updateVotesById = (req, res, next) => {
   const { review_id } = req.params;
   const { inc_votes } = req.body; 
@@ -91,7 +91,7 @@ exports.updateVotesById = (req, res, next) => {
       next(err);
     });
 };
-////TASK 9
+
 exports.deleteComment = (req, res, next) => {
   const { comment_id } = req.params;
   return deleteCommentById(comment_id)
@@ -102,7 +102,7 @@ exports.deleteComment = (req, res, next) => {
       next(err);
     });
 };
-////TASK 10
+
 exports.getUsers = (req, res, next) => {
   return fetchUsers()
     .then((users) => {
@@ -112,7 +112,7 @@ exports.getUsers = (req, res, next) => {
       next(err);
     });
 };
-////TASK 16
+
 exports.getUserByUserName = (req, res, next) => {
   const { username } = req.params;
   return fetchUserByUsername(username)
@@ -123,7 +123,7 @@ exports.getUserByUserName = (req, res, next) => {
       console.log(err);
     });
 };
-////TASK 17
+
 exports.patchCommentsById = (req, res, next) => {
   const { comment_id } = req.params;
   const { inc_votes } = req.body;
@@ -135,7 +135,7 @@ exports.patchCommentsById = (req, res, next) => {
       console.log(err);
     });
 };
-////TASK 18
+
 exports.postNewReview = (req, res, next) => {
   const reviewBody = req.body;
   createReview(reviewBody)
@@ -144,7 +144,7 @@ exports.postNewReview = (req, res, next) => {
     })
     .catch(next);
 };
-////TASK 22
+
 exports.postCategory = (req, res, next) => {
   const newCategory = req.body;
   createCategory(newCategory)
@@ -153,7 +153,7 @@ exports.postCategory = (req, res, next) => {
     })
     .catch(next);
 };
-////TASK 23
+
 exports.deleteReview = (req, res, next) => {
   const { review_id } = req.params;
   return deleteReviewById(review_id)

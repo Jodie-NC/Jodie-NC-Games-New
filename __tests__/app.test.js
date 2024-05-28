@@ -12,7 +12,7 @@ beforeEach(() => {
 afterAll(() => {
   return db.end();
 });
-////TASK 13 GET API
+
 describe("/api", () => {
   test("200: GET- responds with a JSON object containing all endpoints", () => {
     return request(app)
@@ -24,7 +24,7 @@ describe("/api", () => {
       });
   });
 });
-////TASK 3
+
 describe("/api/categories", () => {
   test("200: GET- responds with an array of category objects", () => {
     return request(app)
@@ -42,7 +42,7 @@ describe("/api/categories", () => {
       });
   });
 });
-////TASK 5
+
 describe("/api/reviews/:review_id", () => {
   test("200: GET- should return a status code of 200", () => {
     return request(app).get("/api/reviews/3").expect(200);
@@ -102,7 +102,7 @@ describe("/api/reviews/:review_id", () => {
       });
   });
 });
-////TASK 4
+
 describe("/api/reviews", () => {
   test("200: GET- /api/reviews should return 200 status code", () => {
     return request(app).get("/api/reviews").expect(200);
@@ -141,7 +141,7 @@ describe("/api/reviews", () => {
       });
   });
 });
-////TASK 6
+
 describe("GET /api/reviews/:review_id/comments", () => {
   test("should respond with an array of comments for the given review ID with properties which are of the correct data type", () => {
     return request(app)
@@ -197,7 +197,7 @@ describe("GET /api/reviews/:review_id/comments", () => {
       });
   });
 });
-////TASK 7
+
 describe("POST /api/reviews/:review_id/comments", () => {
   test("201: POST - should respond with a 201 and an object with properties of username and body ", () => {
     return request(app)
@@ -272,7 +272,7 @@ describe("POST /api/reviews/:review_id/comments", () => {
       });
   });
 });
-////TASK 8
+
 describe("PATCH /api/reviews/:review_id", () => {
   test("200: PATCH - should respond with a status 200 and an updated review with increased votes", () => {
     return request(app)
@@ -340,7 +340,7 @@ describe("PATCH /api/reviews/:review_id", () => {
       });
   });
 });
-////TASK 9
+
 describe("GET /api/users", () => {
   test("200: GET - should respond with an array of user objects", () => {
     return request(app)
@@ -359,7 +359,7 @@ describe("GET /api/users", () => {
       });
   });
 });
-////TASK 10
+
 describe("GET /api/reviews QUERY", () => {
   test("200: GET -responds with an array of reviews with specified category", () => {
     return request(app)
@@ -424,7 +424,7 @@ describe("GET /api/reviews QUERY", () => {
         });
       });
   });
-  //Status 400. invalid order query, e.g. ?order=bananas
+
   test("400: GET - should respond with a 400 when passed an invalid order_by is given", () => {
     return request(app)
       .get("/api/reviews?order_by=bananas")
@@ -450,7 +450,7 @@ describe("GET /api/reviews QUERY", () => {
       });
   });
 });
-////TASK 11 COMMENT COUNT
+
 describe("200: GET /api/reviews/:review_id", () => {
   test("responds with a review object with comment_count included", () => {
     return request(app)
@@ -488,7 +488,7 @@ describe("200: GET /api/reviews/:review_id", () => {
       });
   });
 });
-////TASK 12
+
 describe("DELETE /api/comments/:comment_id", () => {
   test("204: DELETE - should respond with a status 204 and no content", () => {
     return request(app)
@@ -505,7 +505,7 @@ describe("DELETE /api/comments/:comment_id", () => {
     return request(app).delete("/api/comments/not-an-id").expect(400);
   });
 });
-/////TASK 17
+
 describe("GET /api/users/:username", () => {
   test("200: GET - should respond with a user object for a specific user", () => {
     const username = "mallionaire";
@@ -523,7 +523,7 @@ describe("GET /api/users/:username", () => {
       });
   });
 });
-////TASK 18
+
 describe("PATCH /api/comments/:comment_id", () => {
   test("PATCH - should respond with a status 200 and update the votes on a comment given the comments comment_id", () => {
     const voteObj = { inc_votes: 1 };
@@ -536,7 +536,7 @@ describe("PATCH /api/comments/:comment_id", () => {
       });
   });
 });
-////TASK 19
+
 describe("POST /api/reviews", () => {
   test("201: POST - should respond with a 201 and an object with properties of review added", () => {
     return request(app)
@@ -560,7 +560,7 @@ describe("POST /api/reviews", () => {
       });
   });
 });
-//TASK 20
+
 describe("GET /api/reviews PAGINATION", () => {
   test("should respond with a status 200 and an array of reviews limited to the length of the limit on page 1", () => {
     return request(app)
@@ -611,7 +611,7 @@ test("should have property total_count ", () => {
       expect(body.reviews.total_count).toBe(0);
     });
 });
-///TASK 22
+
 describe("POST /api/categories", () => {
   test("201: POST - should respond with a 201 and a category object with the newly added topic", () => {
     return request(app)
@@ -627,7 +627,7 @@ describe("POST /api/categories", () => {
       });
   });
 });
-//TASK 23 DELETE
+
 describe("DELETE /api/reviews/:review_id", () => {
   test("204: DELETE - should respond with a status 204 and no content", () => {
     return request(app)
